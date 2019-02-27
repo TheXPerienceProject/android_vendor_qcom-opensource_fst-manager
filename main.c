@@ -1,7 +1,7 @@
 /*
  * FST CLI based main
  *
- * Copyright (c) 2015, The Linux Foundation. All rights reserved.
+ * Copyright (c) 2015,2019, The Linux Foundation. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are
@@ -36,6 +36,7 @@
 #include <errno.h>
 #include <getopt.h>
 #include <signal.h>
+#include <stdbool.h>
 
 #include "utils/common.h"
 #include "utils/os.h"
@@ -47,7 +48,7 @@
 #include "fst_ctrl.h"
 #include "fst_cfgmgr.h"
 #ifdef ANDROID
-#include "cutils/properties.h"
+#include "fst_capconfigstore.h"
 #endif
 
 #define DEFAULT_FST_INIT_RETRY_PERIOD_SEC 1
@@ -143,37 +144,40 @@ static const char FSTMAN_WIGIG_IFNAME[] = "wigig0";
 static const char FSTMAN_DATA_IFNAME[] = "bond0";
 static const char FSTMAN_SAP_IFNAME[] = "wlan0";
 static const char FSTMAN_WIGIG_IF_CHANNEL[] = "2";
-static const char FST_STA_INTERFACE_PROP_NAME[] =
-	"persist.vendor.fst.wifi.sta.interface";
-static const char FST_SAP_INTERFACE_PROP_NAME[] =
-	"persist.vendor.fst.wifi.sap.interface";
-static const char FST_DATA_INTERFACE_PROP_NAME[] =
-	"persist.vendor.fst.data.interface";
-static const char FST_WIGIG_INTERFACE_PROP_NAME[] =
-	"persist.vendor.fst.wigig.interface";
-static const char FST_WIGIG_INTERFACE_CHANNEL_PROP_NAME[] =
-	"persist.vendor.fst.wigig.interface.channel";
+static const char FST_STA_INTERFACE_KEY_NAME[] =
+	"fst.wifi.sta.interface";
+static const char FST_SAP_INTERFACE_KEY_NAME[] =
+	"fst.wifi.sap.interface";
+static const char FST_DATA_INTERFACE_KEY_NAME[] =
+	"fst.data.interface";
+static const char FST_WIGIG_INTERFACE_KEY_NAME[] =
+	"fst.wigig.interface";
+static const char FST_WIGIG_INTERFACE_CHANNEL_KEY_NAME[] =
+	"fst.wigig.interface.channel";
 
 static int create_fstman_ini_file(int softap_mode, char *buf, int len)
 {
-	char fst_iface1[PROPERTY_VALUE_MAX] = { '\0' };
-	char fst_iface2[PROPERTY_VALUE_MAX] = { '\0' };
-	char fst_data_iface[PROPERTY_VALUE_MAX] = { '\0' };
-	char fst_wigig_channel[PROPERTY_VALUE_MAX] = { '\0' };
+	char fst_iface1[64] = { '\0' };
+	char fst_iface2[64] = { '\0' };
+	char fst_data_iface[64] = { '\0' };
+	char fst_wigig_channel[64] = { '\0' };
 	int result;
 
 	if (softap_mode)
-		property_get(FST_SAP_INTERFACE_PROP_NAME, fst_iface1,
-			     FSTMAN_SAP_IFNAME);
+		fst_get_config_string(FST_SAP_INTERFACE_KEY_NAME,
+				      FSTMAN_SAP_IFNAME,
+				      fst_iface1, sizeof(fst_iface1));
 	else
-		property_get(FST_STA_INTERFACE_PROP_NAME, fst_iface1,
-			     FSTMAN_IFNAME);
-	property_get(FST_WIGIG_INTERFACE_PROP_NAME, fst_iface2,
-		     FSTMAN_WIGIG_IFNAME);
-	property_get(FST_DATA_INTERFACE_PROP_NAME, fst_data_iface,
-		     FSTMAN_DATA_IFNAME);
-	property_get(FST_WIGIG_INTERFACE_CHANNEL_PROP_NAME, fst_wigig_channel,
-		     FSTMAN_WIGIG_IF_CHANNEL);
+		fst_get_config_string(FST_STA_INTERFACE_KEY_NAME,
+				      FSTMAN_IFNAME,
+				      fst_iface1, sizeof(fst_iface1));
+	fst_get_config_string(FST_WIGIG_INTERFACE_KEY_NAME, FSTMAN_WIGIG_IFNAME,
+			      fst_iface2, sizeof(fst_iface2));
+	fst_get_config_string(FST_DATA_INTERFACE_KEY_NAME, FSTMAN_DATA_IFNAME,
+			      fst_data_iface, sizeof(fst_data_iface));
+	fst_get_config_string(FST_WIGIG_INTERFACE_CHANNEL_KEY_NAME,
+			      FSTMAN_WIGIG_IF_CHANNEL,
+			      fst_wigig_channel, sizeof(fst_wigig_channel));
 
 	result = snprintf(buf, len,
 		 "[fst_manager]\n"

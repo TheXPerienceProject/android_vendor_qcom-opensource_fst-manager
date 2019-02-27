@@ -9,6 +9,10 @@
 #ifndef WPA_DEBUG_H
 #define WPA_DEBUG_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include "wpabuf.h"
 
 extern int wpa_debug_level;
@@ -362,6 +366,10 @@ static inline void wpa_debug_close_linux_tracing(void)
 	} while (0)
 #else
 #define WPA_ASSERT(a) do { } while (0)
+#endif
+
+#ifdef __cplusplus
+} // extern "C"
 #endif
 
 #endif /* WPA_DEBUG_H */

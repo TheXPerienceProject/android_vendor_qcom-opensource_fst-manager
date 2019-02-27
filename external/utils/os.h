@@ -9,6 +9,10 @@
 #ifndef OS_H
 #define OS_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 typedef long os_time_t;
 
 /**
@@ -664,5 +668,9 @@ int os_exec(const char *program, const char *arg, int wait_completion);
 
 #define strcpy OS_DO_NOT_USE_strcpy
 #endif /* OS_REJECT_C_LIB_FUNCTIONS */
+
+#ifdef __cplusplus
+} // extern "C"
+#endif
 
 #endif /* OS_H */
