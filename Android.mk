@@ -19,6 +19,7 @@ OBJS += main.c
 OBJS += fst_cfgmgr.c
 OBJS += fst_ini_conf.c
 OBJS += fst_rateupg.c
+OBJS += fst_capconfigstore.cpp
 
 OBJS += external/wpa_ctrl.c
 OBJS += external/eloop.c
@@ -50,6 +51,9 @@ LOCAL_MODULE := fstman
 LOCAL_VENDOR_MODULE := true
 LOCAL_SHARED_LIBRARIES := libnl
 LOCAL_SHARED_LIBRARIES += libcutils liblog
+LOCAL_SHARED_LIBRARIES += libutils libhidlbase libhidltransport
+LOCAL_SHARED_LIBRARIES += vendor.qti.hardware.capabilityconfigstore@1.0
+
 LOCAL_HEADER_LIBRARIES += libcutils_headers
 LOCAL_CFLAGS := $(L_CFLAGS)
 LOCAL_SRC_FILES := $(OBJS)
