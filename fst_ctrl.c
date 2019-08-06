@@ -829,6 +829,8 @@ static int fst_dup_station(const char *master,
 	char buf[4096];
 	char cmd[256];
 	char *strstart, *strend;
+	const char *pos;
+	char key_mgmt[10] = "NONE";
 	size_t buf_len = sizeof(buf) - 1;
 	int ret, srcnetid=-1, netid=-1;
 
@@ -892,22 +894,33 @@ static int fst_dup_station(const char *master,
 		strstart++;
 	fst_mgr_printf(MSG_DEBUG,
 		"key_mgmt for net %d is %s", srcnetid, strstart);
-	if (os_strcmp(strstart, "WPA-PSK") &&
-	    os_strcmp(strstart, "WPA2-PSK") &&
-	    os_strcmp(strstart, "NONE")) {
-		fst_mgr_printf(MSG_ERROR, "Unsupported key_mgmt: %s", strstart);
+
+	if ((pos = os_strstr(strstart, "WPA-PSK")) &&
+	    ((pos[os_strlen("WPA-PSK")] == ' ') ||
+	     (pos[os_strlen("WPA-PSK")] == '\0'))) {
+		os_strlcpy(key_mgmt, "WPA-PSK", sizeof(key_mgmt));
+	} else if ((pos = os_strstr(strstart, "WPA2-PSK")) &&
+		   ((pos[os_strlen("WPA2-PSK")] == ' ') ||
+		    (pos[os_strlen("WPA2-PSK")] == '\0'))) {
+		os_strlcpy(key_mgmt, "WPA2-PSK", sizeof(key_mgmt));
+	} else if (!((pos = os_strstr(strstart, "NONE")))) {
+		fst_mgr_printf(MSG_ERROR, "Unsupported key_mgmt, %s",
+			       strstart);
 		goto error_set;
 	}
 
+	fst_mgr_printf(MSG_DEBUG,
+		"updated key_mgmt for net %d is %s", srcnetid, key_mgmt);
+
 	ret = do_simple_command("IFNAME=%s SET_NETWORK %d key_mgmt %s",
-		iface->name, netid, strstart);
+		iface->name, netid, key_mgmt);
 	if (ret < 0) {
 		fst_mgr_printf(MSG_ERROR,
 		  "Set wpa key_mgmt for %d failed", netid);
 		goto error_set;
 	}
 
-	if (os_strcmp(strstart, "NONE")) {
+	if (os_strcmp(key_mgmt, "NONE")) {
 		/* The target network is WPA-PSK */
 		strstart = buf;
 		if (fst_cfgmgr_get_iface_group_cipher(iface, buf,
