@@ -52,7 +52,6 @@ LOCAL_VENDOR_MODULE := true
 LOCAL_SHARED_LIBRARIES := libnl
 LOCAL_SHARED_LIBRARIES += libcutils liblog
 LOCAL_SHARED_LIBRARIES += libutils libhidlbase libhidltransport
-LOCAL_SHARED_LIBRARIES += vendor.qti.hardware.capabilityconfigstore@1.0
 
 LOCAL_HEADER_LIBRARIES += libcutils_headers
 LOCAL_CFLAGS := $(L_CFLAGS)
