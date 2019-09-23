@@ -46,7 +46,7 @@
 #define FST_LLT_SWITCH_IMMEDIATELY 0
 #define LLT_UNIT_US        32 /* See 10.32.2.2  Transitioning between states */
 #define MS_TO_LLT_VALUE(l) (((l) * 1000) / LLT_UNIT_US)
-#define SNR_THRESH_ENABLE "22 27"
+#define SNR_THRESH_ENABLE "10 27"
 #define SNR_THRESH_DISABLE "0 0"
 
 struct fst_mgr
